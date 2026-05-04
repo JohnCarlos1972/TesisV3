@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <form method="post" class="needs-validation" novalidate id="evalForm">
+            {% csrf_token %}
+            <div class="card shadow mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Nueva Evaluación Docente</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        {% for field in form %}
+                        {% if field.name != 'observacion_general' %}
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ field.label }}</label>
+                            {{ field }}
+                            <div class="invalid-feedback">Este campo es obligatorio.</div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <h5 class="border-bottom pb-2">Criterios de Desempeño (1 al 10)</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Criterio</th>
+                                    <th style="width: 150px;">Puntaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for criterio in criterios %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ criterio.nombre_criterio }}</strong>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="criterio_{{ criterio.id }}"
+                                            class="form-control score-input" min="1" max="10" step="0.1" required>
+                                        <div class="invalid-feedback">Requerido (1-10)</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <a href="{% url 'docente_list' %}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-success" id="btnGuardar">
+                        <span id="btnTexto">Guardar Evaluación</span>
+                        <span id="btnCargando" class="spinner-border spinner-border-sm d-none" role="status"
+                            aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    (function () {
+        'use strict'
+        var form = document.getElementById('evalForm')
+        var btn = document.getElementById('btnGuardar')
+        var texto = document.getElementById('btnTexto')
+        var spinner = document.getElementById('btnCargando')
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+
+                // Si falla la validación, volvemos a habilitar por si acaso
+                btn.disabled = false;
+
+                // Toast de aviso rápido
+                var toastContainer = document.querySelector('.toast-container');
+                var errorToast = document.createElement('div');
+                errorToast.className = 'toast align-items-center text-white bg-danger border-0';
+                errorToast.innerHTML = '<div class="d-flex"><div class="toast-body">Por favor, completa todos los campos requeridos con puntajes del 1 al 10.</div></div>';
+                toastContainer.appendChild(errorToast);
+                new bootstrap.Toast(errorToast).show();
+            } else {
+                // SI EL FORMULARIO ES VÁLIDO:
+                // Bloqueamos el botón para evitar doble envío
+                btn.disabled = true;
+                // Cambiamos el texto y mostramos spinner
+                texto.innerText = "Guardando...";
+                spinner.classList.remove('d-none');
+            }
+
+            form.classList.add('was-validated')
+        }, false)
+    })();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const docenteSelect = document.querySelector('select[name="docente"]');
+        const asignaturaSelect = document.querySelector('select[name="asignatura"]');
+
+        if (docenteSelect) {
+            docenteSelect.addEventListener('change', function () {
+                const docenteId = this.value;
+
+                if (!docenteId) {
+                    asignaturaSelect.innerHTML = '<option value="">---------</option>';
+                    asignaturaSelect.disabled = true; // Bloqueado si no hay docente
+                    return;
+                }
+
+                // --- INICIO CARGA ---
+                // Bloqueamos el selector y cambiamos el texto
+                asignaturaSelect.disabled = true;
+                asignaturaSelect.innerHTML = '<option value="">Cargando asignaturas...</option>';
+
+                // Llamada a la API
+                fetch(`/evaluaciones/api/asignaturas-docente/${docenteId}/`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Limpiar y desbloquear
+                        asignaturaSelect.innerHTML = '<option value="">Seleccione una asignatura...</option>';
+
+                        if (data.length === 0) {
+                            asignaturaSelect.innerHTML = '<option value="">Sin asignaturas asignadas</option>';
+                        } else {
+                            data.forEach(asig => {
+                                const option = document.createElement('option');
+                                option.value = asig.id;
+                                option.text = asig.nombre_asignatura;
+                                asignaturaSelect.appendChild(option);
+                            });
+                            // Solo desbloqueamos si hay datos
+                            asignaturaSelect.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        asignaturaSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        asignaturaSelect.classList.add('is-invalid');
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}

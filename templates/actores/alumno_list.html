@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Alumnos</h2>
+    <a href="{% url 'alumno_create' %}" class="btn btn-primary">Registrar Alumno</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Nombre</th>
+                    <th>Carrera</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alumno in alumnos %}
+                <tr>
+                    <td>{{ alumno.matricula }}</td>
+                    <td>{{ alumno.nombre_alumno }}</td>
+                    <td>{{ alumno.carrera.nombre_carrera }}</td>
+                    <td>
+                        <span class="badge {% if alumno.estado %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ alumno.estado|yesno:"Activo,Inactivo" }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'alumno_update' alumno.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

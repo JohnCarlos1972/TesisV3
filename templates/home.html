@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 fw-bold">Sistema de Capacitación Docente</h1>
+    <p class="lead text-muted">Gestión académica impulsada por Inteligencia Artificial</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-primary border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-primary mb-3">👤</div>
+                <h5 class="card-title">Docentes</h5>
+                <p class="small text-muted">Administración y asignación académica.</p>
+                <a href="{% url 'docente_list' %}" class="btn btn-primary btn-sm w-100">Ver Listado</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-secondary border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-secondary mb-3">🎓</div>
+                <h5 class="card-title">Alumnos</h5>
+                <p class="small text-muted">Gestión de estudiantes y matrículas.</p>
+                <a href="{% url 'alumno_list' %}" class="btn btn-secondary btn-sm w-100">Ver Listado</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-success border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-success mb-3">📝</div>
+                <h5 class="card-title">Evaluaciones</h5>
+                <p class="small text-muted">Registrar nuevos puntajes de desempeño.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'evaluacion_create' %}" class="btn btn-success btn-sm">Nueva Evaluación</a>
+                    <a href="{% url 'criterio_list' %}" class="btn btn-outline-secondary btn-sm">Configurar
+                        Criterios</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-warning border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-warning mb-3">📊</div>
+                <h5 class="card-title">Matriz de necesidades</h5>
+                <p class="small text-muted">Análisis automático de brechas y prioridades.</p>
+                <a href="{% url 'matriz_necesidades' %}" class="btn btn-warning btn-sm w-100">Ver Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-info border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-info mb-3">✨</div>
+                <h5 class="card-title">Evaluar con IA</h5>
+                <p class="small text-muted">Generar planes de capacitación personalizados.</p>
+                <a href="{% url 'evaluacion_list' %}" class="btn btn-info text-white btn-sm w-100">Procesar con IA</a>
+
+                 <a href="{% url 'lista_recomendaciones' %}" class="btn btn-outline-info w-100 mt-2">
+                    Ver historial de Recomendaciones
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-0 text-center border-top border-danger border-4">
+            <div class="card-body p-4">
+                <div class="display-6 text-danger mb-3">📄</div>
+                <h5 class="card-title">Reportes</h5>
+                <p class="small text-muted">Emisión de informes finales y ranking de necesidades.</p>
+                <a href="{% url 'lista_reportes' %}" class="btn btn-danger btn-sm w-100">Ver Reportes</a>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+{% endblock %}

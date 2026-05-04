@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{% if object %}Editar{% else %}Nuevo{% endif %} Alumno</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'alumno_list' %}" class="btn btn-secondary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Estilizar campos automáticamente
+    document.querySelectorAll('input, select').forEach(el => {
+        if(el.type !== 'checkbox') el.classList.add('form-control');
+        else el.classList.add('form-check-input');
+    });
+</script>
+{% endblock %}

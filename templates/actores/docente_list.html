@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Listado de Docentes</h2>
+    <a href="{% url 'docente_create' %}" class="btn btn-success">Registrar Nuevo Docente</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>NIC</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Facultad / Carrera</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for docente in docentes %}
+                <tr>
+                    <td>{{ docente.nic }}</td>
+                    <td>{{ docente.nombre }}</td>
+                    <td>{{ docente.correo_electronico }}</td>
+                    <td>
+                        <small>{{ docente.facultad.nombre_facultad }}</small><br>
+                        <strong>{{ docente.carrera.nombre_carrera }}</strong>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'docente_update' docente.pk %}" class="btn btn-sm btn-primary">
+                                Editar
+                            </a>
+                            <a href="{% url 'evaluacion_create_with_id' docente.pk %}" class="btn btn-sm btn-success">
+                                Evaluar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay docentes registrados aún.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

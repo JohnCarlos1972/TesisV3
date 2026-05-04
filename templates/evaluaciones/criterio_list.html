@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Criterios de Evaluación</h2>
+    <a href="{% url 'criterio_create' %}" class="btn btn-primary">Registrar Nuevo Criterio</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th class="text-center">Peso</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for criterio in criterios %}
+                <tr>
+                    <td><strong>{{ criterio.nombre_criterio }}</strong></td>
+                    <td class="small text-muted">{{ criterio.descripcion|truncatechars:100 }}</td>
+                    <td class="text-center">{{ criterio.peso }}</td>
+                    <td class="text-center">
+                        {% if criterio.estado %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'criterio_update' criterio.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

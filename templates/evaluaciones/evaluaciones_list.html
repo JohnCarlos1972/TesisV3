@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Evaluaciones Realizadas</h2>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Docente</th>
+                    <th>Promedio</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eval in evaluaciones %}
+                <tr>
+                    <td>{{ eval.fecha }}</td>
+                    <td>{{ eval.docente.nombre }}</td>
+                    <td>{{ eval.promedio_general }}</td>
+                    <td class="text-center">
+                        <button onclick="generarPlan({{ eval.id }})" class="btn btn-sm btn-info text-white">
+                            Generar Plan con IA
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function generarPlan(id) {
+    Swal.fire({
+        title: '¿Generar plan con IA?',
+        text: "Se enviarán los datos del docente a la Inteligencia Artificial para su análisis.",
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#0dcaf0', 
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '✨ Sí, generar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            
+            // Mostramos la alerta de "Cargando" mientras la IA responde
+            Swal.fire({
+                title: 'Analizando...',
+                html: 'La IA está redactando el plan de capacitación. <br><b>Por favor espera unos segundos.</b>',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Hacemos la llamada al API
+            fetch(`/api/capacitaciones/api/generar-plan/${id}/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.plan_id) {
+                    // Mostramos mensaje de éxito y redirigimos
+                    Swal.fire({
+                        title: '¡Plan Generado!',
+                        text: 'Redirigiendo a la vista de aprobación...',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = `/capacitaciones/plan/${data.plan_id}/`;
+                    });
+                } else {
+                    // Mostramos error controlado
+                    Swal.fire(
+                        '¡Ups!',
+                        data.error || data.mensaje || "No se pudo generar el plan",
+                        'warning'
+                    );
+                }
+            })
+            .catch(error => {
+                // Mostrar mensaje de error de red
+                Swal.fire(
+                    'Error de conexión',
+                    'Hubo un problema al comunicarse con el servidor.',
+                    'error'
+                );
+            });
+        }
+    });
+}
+</script>
+{% endblock %}

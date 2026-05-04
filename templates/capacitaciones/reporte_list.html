@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Módulo de Reportes: Planes Aprobados</h2>    
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <form method="get" class="d-flex gap-2 align-items-center bg-white p-2 border rounded shadow-sm">
+        <div class="input-group ">
+            <span class="input-group-text bg-light">Docente</span>
+            <select name="docente" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for d in docentes %}
+                    <option value="{{ d.id }}" {% if d.id == docente_seleccionado %}selected{% endif %}>
+                        {{ d.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group ">
+            <span class="input-group-text bg-light">Periodo</span>
+            <select name="periodo" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for p in periodos %}
+                    <option value="{{ p.id }}" {% if p.id == periodo_seleccionado %}selected{% endif %}>
+                        {{ p.nombre_periodo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <a href="{% url 'lista_reportes' %}" class="input-group btn btn-outline-secondary">
+            Limpiar filtros
+        </a>
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Docente</th>
+                    <th>Periodo</th>
+                    <th>Carrera</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in planes %}
+                <tr>
+                    <td>{{ plan.fecha_generacion|date:"d/m/Y" }}</td>
+                    <td><strong>{{ plan.docente.nombre }}</strong></td>
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            {{ plan.periodo_nombre }}
+                        </span>
+                    </td>
+                    <td>{{ plan.docente.carrera.nombre_carrera|default:"N/A" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'descargar_pdf' plan.pk %}" class="btn btn-sm btn-danger">
+                             <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">
+                        No se encontraron reportes aprobados con los criterios seleccionados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

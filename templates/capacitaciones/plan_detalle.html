@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Propuesta de Plan de Capacitación (IA)</h4>
+                <span class="badge bg-light text-dark">{{ plan.estado_aprobacion }}</span>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-primary mb-0">
+                        <i class="bi bi-person-badge"></i> Docente: {{ plan.docente.nombre }}
+                    </h5>
+                    <p><strong>Asignatura:</strong> {{ plan.evaluacion.asignatura.nombre_asignatura }}</p>
+                    <div class="d-flex align-items-center gap-2">
+                        <span
+                            class="badge {% if promedio_docente < 6 %}bg-danger{% elif promedio_docente < 8 %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6 shadow-sm">
+                            Calificación: {{ promedio_docente|floatformat:1 }} / 10
+                        </span>
+                        {% if es_avanzada %}
+                        <span class="badge bg-warning text-dark border border-warning fs-6 rounded-pill shadow-sm">
+                            🌟 Candidato a Formación Avanzada
+                        </span>
+                        {% endif %}
+
+                        {% if es_intensivo %}
+                        <span class="badge bg-danger fs-6 rounded-pill shadow-sm border border-danger">
+                            ⚠️ Requiere Plan Intensivo
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-uppercase text-muted">Diagnóstico Automático:</h6>
+                    <div class="p-3 bg-light border-start border-4 border-info rounded">
+                        {{ plan.diagnostico_ia|linebreaks }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-uppercase text-muted">Recomendación Metodológica:</h6>
+                    <div class="p-3 bg-light border-start border-4 border-success rounded">
+                        {{ plan.recomendacion_ia|linebreaks }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-uppercase text-muted">Ruta de Cursos Sugeridos:</h6>
+                    <div class="p-3 bg-light border-start border-4 border-primary rounded">
+                        <div class="text-dark">
+                            {{ plan.cursos_sugeridos|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+
+                {% if plan.estado_aprobacion == 'Borrador' %}
+                <form method="post" class="d-flex justify-content-center gap-3 mt-4">
+                    {% csrf_token %}
+                    <button type="submit" name="accion" value="rechazar" class="btn btn-outline-danger">Rechazar
+                        Plan</button>
+                    <button type="submit" name="accion" value="aprobar" class="btn btn-success px-5">Aprobar y Emitir
+                        Reporte</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

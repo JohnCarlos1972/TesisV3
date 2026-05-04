@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Historial de Recomendaciones IA</h2>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <form method="get" class="d-flex gap-2 align-items-center bg-white p-2 border rounded shadow-sm">
+        <div class="input-group ">
+            <span class="input-group-text bg-light">Docente</span>
+            <select name="docente" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for d in docentes %}
+                <option value="{{ d.id }}" {% if d.id == docente_seleccionado %}selected{% endif %}>
+                    {{ d.nombre }} {{ d.apellido }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group ">
+            <span class="input-group-text bg-light">Periodo</span>
+            <select name="periodo" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for p in periodos %}
+                <option value="{{ p.id }}" {% if p.id == periodo_seleccionado %}selected{% endif %}>
+                    {{ p.nombre_periodo }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <a href="{% url 'lista_recomendaciones' %}" class="input-group btn btn-outline-secondary">
+            Limpiar filtros
+        </a>
+    </form>
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            <a href="?order_by={% if current_order == 'fecha' %}-fecha{% else %}fecha{% endif %}&docente={{ docente_seleccionado|default:'' }}&periodo={{ periodo_seleccionado|default:'' }}" class="text-decoration-none text-dark">
+                                Fecha 
+                                <i class="bi {% if current_order == 'fecha' %}bi-sort-up{% elif current_order == '-fecha' %}bi-sort-down{% else %}bi-arrow-down-up small text-muted{% endif %}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            {% if docente_seleccionado %}
+                                {# Si hay un docente filtrado, mostramos solo el texto #}
+                                <span class="text-dark">Docente</span>
+                            {% else %}
+                                {# Si no hay filtro, permitimos el ordenamiento #}
+                                <a href="?order_by={% if current_order == 'docente' %}-docente{% else %}docente{% endif %}&periodo={{ periodo_seleccionado|default:'' }}" class="text-decoration-none text-dark">
+                                    Docente
+                                    <i class="bi {% if current_order == 'docente' %}bi-sort-alpha-up{% elif current_order == '-docente' %}bi-sort-alpha-down{% else %}bi-arrow-down-up small text-muted{% endif %}"></i>
+                                </a>
+                            {% endif %}
+                        </th>
+                        <th>Periodo</th>
+                        <th>Asignatura</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plan in planes %}
+                    <tr>
+                        <td>{{ plan.fecha_generacion|date:"d/m/Y" }}</td>
+
+                        <td><strong>{{ plan.docente.nombre }} {{ plan.docente.apellido }}</strong></td>
+
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ plan.periodo_nombre }}
+                            </span>
+                        </td>
+
+                        <td>{{ plan.docente.asignatura.nombre_asignatura|default:"General" }}</td>
+
+                        <td>
+                            <span class="badge 
+                            {% if plan.estado_aprobacion == 'Aprobado' %}bg-success
+                            {% elif plan.estado_aprobacion == 'Rechazado' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}">
+                                {{ plan.estado_aprobacion }}
+                            </span>
+                        </td>
+
+                        <td class="text-center align-middle">
+                            <div class="btn-group shadow-sm" role="group" aria-label="Acciones de Plan">
+                                
+                                <a href="{% url 'plan_detalle' plan.id %}" class="btn btn-sm btn-outline-secondary" title="Ver Detalle">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                                {% if plan.estado_aprobacion != 'Aprobado' and plan.estado_aprobacion != 'Rechazado' %}
+                                    
+                                    <form action="{% url 'cambiar_estado_plan' plan.id 'Aprobado' %}" method="post" class="m-0 p-0 d-flex rounded-0 border-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="docente_filtro" value="{{ docente_seleccionado|default:'' }}">
+                                        <input type="hidden" name="periodo_filtro" value="{{ periodo_seleccionado|default:'' }}">
+                                        <input type="hidden" name="order_by_filtro" value="{{ current_order }}">
+                                        
+                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-0 border-start-0" title="Aprobar">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+
+                                    <form action="{% url 'cambiar_estado_plan' plan.id 'Rechazado' %}" method="post" class="m-0 p-0 d-flex rounded-start-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="docente_filtro" value="{{ docente_seleccionado|default:'' }}">
+                                        <input type="hidden" name="periodo_filtro" value="{{ periodo_seleccionado|default:'' }}">
+                                        <input type="hidden" name="order_by_filtro" value="{{ current_order }}">
+                                        
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-start-0 border-start-0" title="Rechazar">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No se encontraron recomendaciones con los filtros seleccionados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
