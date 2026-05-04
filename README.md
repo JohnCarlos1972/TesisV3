@@ -6,7 +6,7 @@
 proyecto/
 ├── configuracion/                # Configuración principal del proyecto
 │   ├── settings.py               # Ajustes de BD, Apps e Integraciones (IA)
-│   └── urls.py                   # Enrutador principal del sistema
+│   └── urls.py                   # Enrutador principal del front end del sistema
 ├── apps/                         # Directorio de aplicaciones del negocio
 │   ├── core/                     # Utilidades del Sistema
 │   │   ├── models.py             # Definición de tablas de la BD
